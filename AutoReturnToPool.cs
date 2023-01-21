@@ -6,21 +6,25 @@ public class AutoReturnToPool : MonoBehaviour
 {
     [Min(0f)][SerializeField] float _returnTime;
 
-    WaitForSecondsRealtime _wfsrt = null;
+    WaitForSeconds _wfsrt = null;
+    Coroutine _returnCor = null;
 
     void Awake()
     {
-        _wfsrt = new WaitForSecondsRealtime(_returnTime);
+        _wfsrt = new WaitForSeconds(_returnTime);
     }
 
     void OnEnable()
     {
-        StartCoroutine(_ReturnToPool());
+        _returnCor = StartCoroutine(_ReturnToPool());
     }
 
     void OnDisable()
     {
-        PoolManager.instance.Put(gameObject);
+        if (_returnCor == null) return;
+
+        StopCoroutine(_returnCor);
+        _returnCor = null;
     }
 
     IEnumerator _ReturnToPool()

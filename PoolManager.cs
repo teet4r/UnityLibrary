@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.AI;
 
 public class PoolManager : MonoBehaviour
 {
@@ -108,8 +109,9 @@ public class PoolManager : MonoBehaviour
 
         for (int i = 0; i < prefabs.Length; i++)
         {
+            if (prefabs[i].TryGetComponent(out NavMeshAgent navMeshAgent))
+                navMeshAgent.enabled = false;
             _prefabDictionary.Add(prefabs[i].name, prefabs[i]);
-            prefabs[i].SetActive(false);
         }
     }
 }
