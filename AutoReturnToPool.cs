@@ -18,10 +18,21 @@ public class AutoReturnToPool : MonoBehaviour
         StartCoroutine(_ReturnToPool());
     }
 
+    void OnDisable()
+    {
+        _InstantReturnToPool();
+    }
+
     IEnumerator _ReturnToPool()
     {
         yield return _wfsrt;
 
-        PoolManager.instance.Put(gameObject);
+        _InstantReturnToPool();
+    }
+
+    void _InstantReturnToPool()
+    {
+        if (gameObject.activeSelf)
+            PoolManager.instance.Put(gameObject);
     }
 }
