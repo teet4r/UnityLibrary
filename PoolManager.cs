@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class PoolManager : MonoBehaviour
 {
@@ -97,12 +98,12 @@ public class PoolManager : MonoBehaviour
 
     void Initialize()
     {
+        if (!Directory.Exists($"{Application.dataPath}/Resources/Prefabs"))
+            Directory.CreateDirectory($"{Application.dataPath}/Resources/Prefabs");
+
         var prefabs = Resources.LoadAll<GameObject>("Prefabs");
         if (prefabs == null)
-        {
             Debug.LogError("There are no prefabs!");
-            return;
-        }
 
         for (int i = 0; i < prefabs.Length; i++)
         {
