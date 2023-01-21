@@ -33,6 +33,7 @@ public class PoolManager : MonoBehaviour
                 Debug.LogError("This object is null.");
                 return;
             }
+            if (!obj.activeSelf) return;
 
             obj.SetActive(false);
             _q.Enqueue(obj);
