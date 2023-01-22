@@ -11,7 +11,7 @@ public class PoolManager : MonoBehaviour
         public GameObject prefab;
 
         Queue<GameObject> _q = new Queue<GameObject>();
-        
+
         void OnDestroy()
         {
             Clear();
@@ -109,8 +109,7 @@ public class PoolManager : MonoBehaviour
 
         for (int i = 0; i < prefabs.Length; i++)
         {
-            if (prefabs[i].TryGetComponent(out NavMeshAgent navMeshAgent))
-                navMeshAgent.enabled = false;
+            prefabs[i].SetActive(false);
             _prefabDictionary.Add(prefabs[i].name, prefabs[i]);
         }
     }
