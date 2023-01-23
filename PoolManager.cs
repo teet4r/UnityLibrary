@@ -11,12 +11,6 @@ public class PoolManager : MonoBehaviour
 
         Queue<GameObject> _q = new Queue<GameObject>();
 
-        void OnDestroy()
-        {
-            Clear();
-            prefab.SetActive(true);
-        }
-
         public GameObject Get()
         {
             if (_q.Count == 0)
@@ -39,75 +33,55 @@ public class PoolManager : MonoBehaviour
             obj.SetActive(false);
             _q.Enqueue(obj);
         }
-        public void Clear()
-        {
-            while (_q.Count != 0)
-                Destroy(_q.Dequeue());
-        }
     }
 
     public static PoolManager instance = null;
 
-    Dictionary<string, GameObject> _prefabDictionary = new Dictionary<string, GameObject>();
+    ObjectPool _getPoolObj = null;
+    ObjectPool _putPoolObj = null;
     Dictionary<string, ObjectPool> _poolDictionary = new Dictionary<string, ObjectPool>();
 
     void Awake()
     {
         if (instance == null)
             instance = this;
-
-        Initialize();
-    }
-    void OnDestroy()
-    {
-        Clear();
     }
 
     public GameObject Get(string prefabName)
     {
-        if (!_prefabDictionary.ContainsKey(prefabName))
+        var prefab = ResourceManager.Instance.Get(prefabName);
+        if (prefab == null)
         {
-            Debug.LogError($"{prefabName} doesn't exist in Resources/Prefabs folder.");
+            Debug.LogError($"{prefabName} doesn't exist!");
             return null;
         }
 
         var poolName = $"{prefabName}Pool";
-        if (!_poolDictionary.ContainsKey(poolName))
-        {
-            var poolObj = new GameObject(poolName);
-            var pool = poolObj.AddComponent<ObjectPool>();
+        if (_poolDictionary.TryGetValue(poolName, out _getPoolObj))
+            return _getPoolObj.Get();
 
-            pool.transform.parent = transform;
-            pool.prefab = _prefabDictionary[prefabName];
-            _poolDictionary.Add(poolName, pool);
-        }
-        return _poolDictionary[poolName].Get();
+        var newPoolObj = new GameObject(poolName);
+        var pool = newPoolObj.AddComponent<ObjectPool>();
+
+        pool.transform.parent = transform;
+        pool.prefab = prefab;
+        _poolDictionary.Add(poolName, pool);
+        return pool.Get();
     }
     public void Put(GameObject obj)
     {
-        if (obj == null) return;
+        if (obj == null)
+        {
+            Debug.LogError($"{obj} is null!");
+            return;
+        }
 
         var poolName = $"{obj.name}Pool";
-        if (!_poolDictionary.ContainsKey(poolName)) return;
-
-        _poolDictionary[poolName].Put(obj);
-    }
-    public void Clear()
-    {
-        foreach (var pair in _poolDictionary)
-            Destroy(pair.Value);
-    }
-
-    void Initialize()
-    {
-        var prefabs = Resources.LoadAll<GameObject>("Prefabs");
-        if (prefabs == null)
-            Debug.LogError("There are no prefabs!");
-
-        for (int i = 0; i < prefabs.Length; i++)
+        if (_poolDictionary.TryGetValue(poolName, out _putPoolObj))
         {
-            prefabs[i].SetActive(false);
-            _prefabDictionary.Add(prefabs[i].name, prefabs[i]);
+            _putPoolObj.Put(obj);
+            return;
         }
+        Debug.LogError("This pool doesn't exist!");
     }
 }

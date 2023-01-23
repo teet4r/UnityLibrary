@@ -19,14 +19,6 @@ public class AutoReturnToPool : MonoBehaviour
         _returnCor = StartCoroutine(_ReturnToPool());
     }
 
-    void OnDisable()
-    {
-        if (_returnCor == null) return;
-
-        StopCoroutine(_returnCor);
-        _returnCor = null;
-    }
-
     IEnumerator _ReturnToPool()
     {
         yield return _wfsrt;
