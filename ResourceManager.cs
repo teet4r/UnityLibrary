@@ -6,7 +6,7 @@ public class ResourceManager : Singleton<ResourceManager>
 {
     [SerializeField] string[] _paths =
     {
-        "Prefabs"
+        "Prefabs", "Sounds"
     };
 
     bool _isLoaded = false;
