@@ -49,7 +49,7 @@ public class PoolManager : MonoBehaviour
 
     public GameObject Get(string prefabName)
     {
-        var prefab = ResourceManager.Instance.Get(prefabName);
+        var prefab = ResourceManager.Instance.Get<GameObject>(prefabName);
         if (prefab == null)
         {
             Debug.LogError($"{prefabName} doesn't exist!");

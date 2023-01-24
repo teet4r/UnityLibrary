@@ -1,17 +1,29 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ResourceManager : Singleton<ResourceManager>
 {
-    [SerializeField] string[] _paths =
+    class ResourcePool : MonoBehaviour
     {
-        "Prefabs", "Sounds"
-    };
+        Object _obj = null;
+        Dictionary<string, Object> _dictionary = new Dictionary<string, Object>();
+
+        public Object Get(string resourceName)
+        {
+            if (_dictionary.TryGetValue(resourceName, out _obj))
+                return _obj;
+            return null;
+        }
+        public void Add(string resourceName, Object resource)
+        {
+            _dictionary.Add(resourceName, resource);
+        }
+    }
 
     bool _isLoaded = false;
-    GameObject _getObj = null;
-    Dictionary<string, GameObject> _prefabDictionary = new Dictionary<string, GameObject>();
+    ResourcePool _pool = null;
+    Dictionary<string, ResourcePool> _resourceDictionary = new Dictionary<string, ResourcePool>();
 
     protected override void Awake()
     {
@@ -20,41 +32,44 @@ public class ResourceManager : Singleton<ResourceManager>
         LoadAll();
     }
 
-    /// <summary>
-    /// Use a clone of original prefab.
-    /// </summary>
     public void LoadAll()
     {
         if (_isLoaded) return;
         _isLoaded = true;
 
-        for (int i = 0; i < _paths.Length; i++)
+        var resources = Resources.LoadAll("");
+        for (int i = 0; i < resources.Length; i++)
         {
-            var prefabs = Resources.LoadAll<GameObject>(_paths[i]);
-            if (prefabs == null)
-                Debug.LogError($"There are no prefabs in {_paths[i]}!");
-
-            for (int j = 0; j < prefabs.Length; j++)
+            var type = resources[i].GetType();
+            var typeName = type.Name;
+            if (!_resourceDictionary.ContainsKey(typeName))
             {
-                // for keeping its original state.
-                var originActiveSelf = prefabs[j].activeSelf;
-
-                if (originActiveSelf)
-                    prefabs[j].SetActive(false);
-
-                var clone = Instantiate(prefabs[j], transform);
-                clone.name = prefabs[j].name;
-                _prefabDictionary.Add(clone.name, clone);
-
-                if (originActiveSelf)
-                    prefabs[i].SetActive(true);
+                var newObj = new GameObject($"{typeName}Resources");
+                var pool = newObj.AddComponent<ResourcePool>();
+                pool.transform.parent = transform;
+                _resourceDictionary.Add(typeName, pool);
             }
+            _resourceDictionary[typeName].Add(resources[i].name, resources[i]);
         }
     }
-    public GameObject Get(string prefabName)
+    public T Get<T>(string resourceName) where T : Object
     {
-        if (_prefabDictionary.TryGetValue(prefabName, out _getObj))
-            return _getObj;
+        var typeName = typeof(T).Name;
+        if (_resourceDictionary.TryGetValue(typeName, out _pool))
+            return _pool.Get(resourceName) as T;
+        Debug.LogError($"{typeName} doesn't exist!");
         return null;
     }
 }
+//// for keeping its original state.
+//var originActiveSelf = resources[j].activeSelf;
+
+//if (originActiveSelf)
+//    resources[j].SetActive(false);
+
+//var clone = Instantiate(prefabs[j], transform);
+//clone.name = prefabs[j].name;
+//_prefabDictionary.Add(clone.name, clone);
+
+//if (originActiveSelf)
+//    prefabs[i].SetActive(true);
