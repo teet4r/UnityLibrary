@@ -4,67 +4,99 @@ using UnityEngine;
 
 public class SoundManager : Singleton<SoundManager>
 {
-    
+    public BgmAudio BgmAudio { get; private set; } = null;
+    public SfxAudio SfxAudio { get; private set; } = null;
 
-    abstract class BaseAudio : MonoBehaviour
+    protected override void Awake()
     {
-        public bool IsMute
-        {
-            get { return _audioSource.mute; }
-            set { _audioSource.mute = value; }
-        }
-        public float Volume
-        {
-            get { return _audioSource.volume; }
-            set { _audioSource.volume = value; }
-        }
+        base.Awake();
 
-        [SerializeField] protected AudioSource _audioSource = null;
-
-        protected AudioClip _clip = null;
-        protected Dictionary<string, AudioClip> _clipDictionary = new Dictionary<string, AudioClip>();
-
-        void Awake()
-        {
-            if (_audioSource == null)
-            {
-                if (TryGetComponent(out AudioSource audioSource))
-                    _audioSource = audioSource;
-                else
-                    _audioSource = gameObject.AddComponent<AudioSource>();
-            }
-        }
-
-        public abstract void AddClip();
-        public abstract void Play(string name);
+        Initialize();
     }
 
-    class BgmAudio : BaseAudio
+    void Initialize()
     {
-        public override void AddClip()
-        {
-        }
+        // BgmAudio 생성
+        var newObj0 = new GameObject("BgmAudio");
+        newObj0.transform.parent = transform;
+        BgmAudio = newObj0.AddComponent<BgmAudio>();
+        
+        // SfxAudio 생성
+        var newObj1 = new GameObject("SfxAudio");
+        newObj1.transform.parent = transform;
+        SfxAudio = newObj1.AddComponent<SfxAudio>();
+    }
+}
 
-        public override void Play(string name)
+public abstract class BaseAudio : MonoBehaviour
+{
+    public bool IsMute
+    {
+        get { return _audioSource.mute; }
+        set { _audioSource.mute = value; }
+    }
+    public float Volume
+    {
+        get { return _audioSource.volume; }
+        set { _audioSource.volume = value; }
+    }
+
+    [SerializeField] protected AudioSource _audioSource = null;
+
+    protected virtual void Awake()
+    {
+        if (_audioSource == null)
         {
+            if (TryGetComponent(out AudioSource audioSource))
+                _audioSource = audioSource;
+            else
+                _audioSource = gameObject.AddComponent<AudioSource>();
         }
     }
 
-    class SfxAudio : BaseAudio
-    {
-        public override void AddClip()
-        {
-            
-        }
+    public abstract void Play(string name);
+}
 
-        public override void Play(string name)
+public class BgmAudio : BaseAudio
+{
+    protected override void Awake()
+    {
+        base.Awake();
+
+        _audioSource.playOnAwake = false;
+        _audioSource.loop = true;
+    }
+
+    public override void Play(string name)
+    {
+        var clip = ResourceManager.Instance.Get<AudioClip>(name);
+        if (clip == null)
         {
-            if (_clipDictionary.TryGetValue(name, out _clip))
-            {
-                _audioSource.PlayOneShot(_clip);
-                return;
-            }
+            Debug.LogError($"{name} bgm is not found.");
+            return;
+        }
+        _audioSource.clip = clip;
+        _audioSource.Play();
+    }
+}
+
+public class SfxAudio : BaseAudio
+{
+    protected override void Awake()
+    {
+        base.Awake();
+
+        _audioSource.playOnAwake = false;
+    }
+
+    public override void Play(string name)
+    {
+        var clip = ResourceManager.Instance.Get<AudioClip>(name);
+        if (clip == null)
+        {
             Debug.LogError($"{name} sfx is not found.");
+            return;
         }
+        _audioSource.PlayOneShot(clip);
     }
 }

@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
-public class PoolManager : MonoBehaviour
+public class PoolManager : Singleton<PoolManager>
 {
     class ObjectPool : MonoBehaviour
     {
@@ -15,7 +14,7 @@ public class PoolManager : MonoBehaviour
         {
             if (_q.Count == 0)
             {
-                var clone = Instantiate(prefab);
+                var clone = Instantiate(prefab, transform);
                 clone.name = prefab.name;
                 return clone;
             }
@@ -35,17 +34,9 @@ public class PoolManager : MonoBehaviour
         }
     }
 
-    public static PoolManager instance = null;
-
     ObjectPool _getPoolObj = null;
     ObjectPool _putPoolObj = null;
     Dictionary<string, ObjectPool> _poolDictionary = new Dictionary<string, ObjectPool>();
-
-    void Awake()
-    {
-        if (instance == null)
-            instance = this;
-    }
 
     public GameObject Get(string prefabName)
     {
@@ -55,7 +46,7 @@ public class PoolManager : MonoBehaviour
             Debug.LogError($"{prefabName} doesn't exist!");
             return null;
         }
-
+        
         var poolName = $"{prefabName}Pool";
         if (_poolDictionary.TryGetValue(poolName, out _getPoolObj))
             return _getPoolObj.Get();
@@ -72,7 +63,7 @@ public class PoolManager : MonoBehaviour
     {
         if (obj == null)
         {
-            Debug.LogError($"{obj} is null!");
+            Debug.LogError("Null GameObject is detected!");
             return;
         }
 
@@ -82,6 +73,6 @@ public class PoolManager : MonoBehaviour
             _putPoolObj.Put(obj);
             return;
         }
-        Debug.LogError("This pool doesn't exist!");
+        Debug.LogError("Null pool is detected!");
     }
 }
