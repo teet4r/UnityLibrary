@@ -2,24 +2,13 @@
 
 public abstract class CustomUpdateBehaviour : MonoBehaviour
 {
-    public int CustomUpdateIndex
+    protected virtual void OnEnable()
     {
-        get { return _customUpdateIndex; }
-        set
-        {
-            if (value < -1 || value >= CustomUpdateManager.size)
-                _customUpdateIndex = Random.Range(0, CustomUpdateManager.size);
-            else
-                _customUpdateIndex = value;
-        }
+        CustomUpdateManager.Instance.Register(this);
     }
-
-    // Do not modify this variable;
-    int _customUpdateIndex = -1;
-
-    void OnEnable()
+    protected virtual void OnDisable()
     {
-        
+        CustomUpdateManager.Instance.Deregister(this);
     }
 
     public abstract void CustomUpdate();

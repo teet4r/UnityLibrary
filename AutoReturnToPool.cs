@@ -19,17 +19,14 @@ public class AutoReturnToPool : MonoBehaviour
 
         _wfsReturnTime = new WaitForSeconds(_returnTime);
     }
-
     void OnEnable()
     {
         StartTimer();
     }
-
     void OnDisable()
     {
         StopTimer();
     }
-
     void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnChangeScene;
@@ -41,7 +38,6 @@ public class AutoReturnToPool : MonoBehaviour
 
         _returnCor = StartCoroutine(_ReturnToPool());
     }
-
     void StopTimer()
     {
         if (_returnCor == null) return;
@@ -49,7 +45,7 @@ public class AutoReturnToPool : MonoBehaviour
         StopCoroutine(_returnCor);
         _returnCor = null;
     }
-
+    
     /// <summary>
     /// 씬이 변경되면 모든 활성화된 프리팹을 풀에 반환
     /// </summary>
