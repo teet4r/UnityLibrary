@@ -3,6 +3,11 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
+/// <summary>
+/// Resources 폴더 활용
+/// 모든 Resource 폴더를 검사하기 때문에
+/// 형식에 상관없이 Resources 폴더 하위에 넣어두면 됨.
+/// </summary>
 public class ResourceManager : Singleton<ResourceManager>
 {
     class TypePool : MonoBehaviour
@@ -38,14 +43,14 @@ public class ResourceManager : Singleton<ResourceManager>
         if (_isLoaded) return;
         _isLoaded = true;
 
-        // 해당 경로 리소스 모두 로드
+        // Resource 파일 모두 로드
         var resources = Resources.LoadAll("");
         for (int i = 0; i < resources.Length; i++)
         {
             var type = resources[i].GetType();
             var typeName = type.Name;
 
-            // 해당 타입이 없으면 풀 추가
+            // 해당 타입의 풀이 없으면 추가
             if (!_typeDictionary.ContainsKey(typeName))
             {
                 var newObj = new GameObject($"{typeName}Resources");
@@ -60,6 +65,7 @@ public class ResourceManager : Singleton<ResourceManager>
                 var resource = resources[i] as GameObject;
                 var originActiveSelf = resource.activeSelf;
 
+                // 비활성화 후 복제
                 if (originActiveSelf)
                     resource.SetActive(false);
 
@@ -68,6 +74,7 @@ public class ResourceManager : Singleton<ResourceManager>
                 clone.name = resource.name;
                 resources[i] = clone;
 
+                // 원래 상태로 되돌림
                 if (originActiveSelf)
                     resource.SetActive(true);
             }

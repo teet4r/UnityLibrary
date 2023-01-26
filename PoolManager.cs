@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// GameObject를 저장하는 풀
+/// Prefab 형태는 모두 여기서 관리
+/// </summary>
 public class PoolManager : Singleton<PoolManager>
 {
     class ObjectPool : MonoBehaviour
@@ -9,6 +13,12 @@ public class PoolManager : Singleton<PoolManager>
         public GameObject prefab;
 
         Queue<GameObject> _q = new Queue<GameObject>();
+
+        void Start()
+        {
+            if (prefab.GetComponent<AutoReturnToPool>() == null)
+                throw new System.Exception($"{prefab.name} prefab has no AutoReturnToPool component!");
+        }
 
         public GameObject Get()
         {
@@ -27,6 +37,8 @@ public class PoolManager : Singleton<PoolManager>
                 Debug.LogError("This object is null.");
                 return;
             }
+
+            // 이미 비활성화되어 있다면 큐에 넣지 않음
             if (!obj.activeSelf) return;
 
             obj.SetActive(false);
@@ -54,6 +66,7 @@ public class PoolManager : Singleton<PoolManager>
         var newPoolObj = new GameObject(poolName);
         var pool = newPoolObj.AddComponent<ObjectPool>();
 
+        // 새로 생성된 풀은 풀 매니저 하위 오브젝트로 등록
         pool.transform.parent = transform;
         pool.prefab = prefab;
         _poolDictionary.Add(poolName, pool);

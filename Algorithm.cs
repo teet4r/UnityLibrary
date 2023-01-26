@@ -7,6 +7,12 @@ namespace Algorithm
 {
     public class Navigation
     {
+        /// <summary>
+        /// Finds random point on NavMesh.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="distance"></param>
+        /// <returns>If it can't find random point on NavMesh, returns positive infinity of Vector3.</returns>
         public static Vector3 GetRandomPointOnNavMesh(Vector3 center, float distance)
         {
             // center를 중심으로 반지름이 maxDistance인 구 안에서의 랜덤한 위치 하나를 저장
@@ -18,7 +24,7 @@ namespace Algorithm
                 // 찾은 점 반환
                 return hit.position;
 
-            throw new System.Exception("There is no Navigation!");
+            return Vector3.positiveInfinity;
         }
     }
 }

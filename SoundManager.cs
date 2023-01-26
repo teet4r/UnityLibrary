@@ -11,10 +11,10 @@ public class SoundManager : Singleton<SoundManager>
     {
         base.Awake();
 
-        Initialize();
+        _Initialize();
     }
 
-    void Initialize()
+    void _Initialize()
     {
         // BgmAudio 생성
         var newObj0 = new GameObject("BgmAudio");
