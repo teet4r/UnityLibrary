@@ -44,6 +44,7 @@ public class AutoReturnToPool : MonoBehaviour
 
         StopCoroutine(_returnCor);
         _returnCor = null;
+        PoolManager.Instance.Put(gameObject);
     }
     
     /// <summary>
@@ -54,8 +55,6 @@ public class AutoReturnToPool : MonoBehaviour
     void OnChangeScene(Scene scene, LoadSceneMode loadSceneMode)
     {
         StopTimer();
-
-        PoolManager.Instance.Put(gameObject);
     }
 
     IEnumerator _ReturnToPool()

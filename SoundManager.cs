@@ -7,10 +7,8 @@ public class SoundManager : Singleton<SoundManager>
     public BgmAudio BgmAudio { get; private set; } = null;
     public SfxAudio SfxAudio { get; private set; } = null;
 
-    protected override void Awake()
+    void Awake()
     {
-        base.Awake();
-
         _Initialize();
     }
 

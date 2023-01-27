@@ -8,7 +8,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         get
         {
-            if (_instance == null)
+            if (_instance == null && Time.timeScale != 0f)
             {
                 _instance = FindObjectOfType<T>();
                 if (_instance == null)
@@ -16,19 +16,18 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                     var newObj = new GameObject();
                     _instance = newObj.AddComponent<T>();
                     newObj.name = typeof(T).ToString();
+                    DontDestroyOnLoad(newObj);
                 }
+                else
+                    DontDestroyOnLoad(_instance.gameObject);
             }
             return _instance;
         }
     }
     static T _instance = null;
 
-    protected virtual void Awake()
+    void OnApplicationQuit()
     {
-        if (_instance == null)
-            _instance = this as T;
-        else if (_instance != this)
-            Destroy(gameObject);
-        DontDestroyOnLoad(gameObject);
+        Time.timeScale = 0f;
     }
 }
