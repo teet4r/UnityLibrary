@@ -1,12 +1,26 @@
 ﻿public interface ICustomUpdate
 {
-    // 상속하는 컴포넌트의 OnEnable()에서 호출.
-    // void Register() { CustomUpdateManager.Instance.Register(this); }
-    void RegisterUpdate();
+    /* 
+     * For example:
+     * OnEnable()
+     * {
+     *     RegisterCustomUpdate();
+     * }
+     * 
+     * RegisterCustomUpdate() { CustomUnityMessageManager.Instance.RegisterCustomUpdate(this); }
+    */
+    void RegisterCustomUpdate();
 
-    // 상속하는 컴포넌트의 OnDisable()에서 호출.
-    // void Register() { CustomUpdateManager.Instance.Deregister(this); }
-    void DeregisterUpdate();
+    /*
+     * For example:
+     * OnDisable()
+     * {
+     *     DeregisterCustomUpdate();
+     * }
+     * 
+     * DeregisterCustomUpdate() { CustomUnityMessageManager.Instance.DeregisterCustomUpdate(this); }
+     */
+    void DeregisterCustomUpdate();
 
     void CustomUpdate();
 }

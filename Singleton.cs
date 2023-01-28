@@ -26,7 +26,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     }
     static T _instance = null;
 
-    void OnApplicationQuit()
+    protected virtual void OnApplicationQuit()
     {
         Time.timeScale = 0f;
     }
