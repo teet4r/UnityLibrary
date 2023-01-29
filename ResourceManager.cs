@@ -27,19 +27,19 @@ public class ResourceManager : Singleton<ResourceManager>
         }
     }
 
-    bool _isLoaded = false;
+    bool _isCreated = false;
     TypePool _pool = null;
     Dictionary<string, TypePool> _typeDictionary = new Dictionary<string, TypePool>();
 
     void Awake()
     {
-        LoadAll();
+        Create();
     }
 
-    public void LoadAll()
+    public void Create()
     {
-        if (_isLoaded) return;
-        _isLoaded = true;
+        if (_isCreated) return;
+        _isCreated = true;
 
         // Resource 파일 모두 로드
         var resources = Resources.LoadAll("");

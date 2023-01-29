@@ -81,7 +81,12 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
     CustomUpdatePool<ICustomUpdate> _updatePool = new CustomUpdatePool<ICustomUpdate>();
     CustomUpdatePool<ICustomFixedUpdate> _fixedUpdatePool = new CustomUpdatePool<ICustomFixedUpdate>();
     CustomUpdatePool<ICustomLateUpdate> _lateUpdatePool = new CustomUpdatePool<ICustomLateUpdate>();
+    bool _isCreated = false;
 
+    void Awake()
+    {
+        Create();
+    }
     void Update()
     {
         for (int i = 0; i < _updatePool.customObjs.Length; i++)
@@ -101,6 +106,11 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
                 _lateUpdatePool.customObjs[i].CustomLateUpdate();
     }
 
+    public void Create()
+    {
+        if (_isCreated) return;
+        _isCreated = true;
+    }
     public void RegisterCustomUpdate(ICustomUpdate obj)
     {
         _updatePool.Register(obj);

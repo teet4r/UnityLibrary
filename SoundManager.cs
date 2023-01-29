@@ -1,19 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SoundManager : Singleton<SoundManager>
 {
     public BgmAudio BgmAudio { get; private set; } = null;
     public SfxAudio SfxAudio { get; private set; } = null;
 
+    bool _isCreated = false;
+
     void Awake()
     {
-        _Initialize();
+        Create();
     }
 
-    void _Initialize()
+    public void Create()
     {
+        if (_isCreated) return;
+        _isCreated = true;
+
         // BgmAudio 생성
         var newObj0 = new GameObject("BgmAudio");
         newObj0.transform.parent = transform;

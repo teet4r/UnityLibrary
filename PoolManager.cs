@@ -49,7 +49,18 @@ public class PoolManager : Singleton<PoolManager>
     ObjectPool _getPoolObj = null;
     ObjectPool _putPoolObj = null;
     Dictionary<string, ObjectPool> _poolDictionary = new Dictionary<string, ObjectPool>();
+    bool _isCreated = false;
 
+    void Awake()
+    {
+        Create();
+    }
+
+    public void Create()
+    {
+        if (_isCreated) return;
+        _isCreated = true;
+    }
     public GameObject Get(string prefabName)
     {
         var prefab = ResourceManager.Instance.Get<GameObject>(prefabName);
