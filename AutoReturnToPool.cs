@@ -8,6 +8,11 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class AutoReturnToPool : MonoBehaviour
 {
+    public float ReturnTime
+    {
+        get { return _returnTime; }
+    }
+
     [Min(0f)][SerializeField] float _returnTime = Mathf.Infinity;
 
     WaitForSeconds _wfsReturnTime = null;
