@@ -31,8 +31,10 @@ public class ResourceManager : Singleton<ResourceManager>
     TypePool _pool = null;
     Dictionary<string, TypePool> _typeDictionary = new Dictionary<string, TypePool>();
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         Create();
     }
 

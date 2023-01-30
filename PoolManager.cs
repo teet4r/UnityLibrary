@@ -51,8 +51,10 @@ public class PoolManager : Singleton<PoolManager>
     Dictionary<string, ObjectPool> _poolDictionary = new Dictionary<string, ObjectPool>();
     bool _isCreated = false;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         Create();
     }
 

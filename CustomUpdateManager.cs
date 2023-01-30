@@ -83,8 +83,10 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
     CustomUpdatePool<ICustomLateUpdate> _lateUpdatePool = new CustomUpdatePool<ICustomLateUpdate>();
     bool _isCreated = false;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         Create();
     }
     void Update()

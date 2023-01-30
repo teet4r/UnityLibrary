@@ -7,8 +7,10 @@ public class SoundManager : Singleton<SoundManager>
 
     bool _isCreated = false;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         Create();
     }
 
