@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
+using CustomLibrary;
 
 public class TagLayerManager : Singleton<TagLayerManager>
 {
@@ -39,7 +40,7 @@ public class TagLayerManager : Singleton<TagLayerManager>
         for (int i = 0; i < 32; i++)
         {
             var layerName = _layerProperty.GetArrayElementAtIndex(i).stringValue;
-            if (string.IsNullOrEmpty(layerName) || string.IsNullOrWhiteSpace(layerName))
+            if (Utility.IsNullOrEmptyOrWhiteSpace(layerName))
                 continue;
             _layerDictionary.Add(_layerProperty.GetArrayElementAtIndex(i).stringValue, 1 << i);
         }
@@ -80,7 +81,7 @@ public class TagLayerManager : Singleton<TagLayerManager>
             for (int j = 8; j < 32; j++)
             {
                 var element = _layerProperty.GetArrayElementAtIndex(j);
-                if (string.IsNullOrEmpty(element.stringValue) || string.IsNullOrWhiteSpace(element.stringValue))
+                if (Utility.IsNullOrEmptyOrWhiteSpace(element.stringValue))
                 {
                     _layerDictionary.Add(newLayerNames[i], j);
                     _layerProperty.GetArrayElementAtIndex(j).stringValue = newLayerNames[i];

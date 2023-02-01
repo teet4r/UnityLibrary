@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Algorithm
+namespace CustomLibrary
 {
-    public class Navigation
+    public class Utility
     {
         /// <summary>
         /// Finds random point on NavMesh.
@@ -25,6 +25,23 @@ namespace Algorithm
                 return hit.position;
 
             return Vector3.positiveInfinity;
+        }
+
+        /// <summary>
+        /// 각도 구하는 함수,
+        /// transform.forward 기준
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public static float GetAngle(Transform start, Transform end)
+        {
+            return Mathf.Atan2(start.forward.z, end.forward.x) * Mathf.Rad2Deg;
+        }
+
+        public static bool IsNullOrEmptyOrWhiteSpace(string str)
+        {
+            return string.IsNullOrEmpty(str) || string.IsNullOrWhiteSpace(str);
         }
     }
 }
