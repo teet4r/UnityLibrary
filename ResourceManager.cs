@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.UI;
 
 /// <summary>
 /// Resources 폴더 활용
@@ -12,18 +10,18 @@ public class ResourceManager : Singleton<ResourceManager>
 {
     class TypePool : MonoBehaviour
     {
-        Object _obj = null;
         Dictionary<string, Object> _dictionary = new Dictionary<string, Object>();
 
         public Object Get(string resourceName)
         {
-            if (_dictionary.TryGetValue(resourceName, out _obj))
+            if (_dictionary.TryGetValue(resourceName, out Object _obj))
                 return _obj;
             return null;
         }
         public void Add(string resourceName, Object resource)
         {
-            _dictionary.Add(resourceName, resource);
+            if (!_dictionary.TryGetValue(resourceName, out Object _obj))
+                _dictionary.Add(resourceName, resource);
         }
     }
 
