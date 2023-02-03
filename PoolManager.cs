@@ -5,49 +5,11 @@ using UnityEngine;
 /// GameObject를 저장하는 풀
 /// Prefab 형태는 모두 여기서 관리
 /// </summary>
-public class PoolManager : Singleton<PoolManager>
+public class PoolManager : PrefabricatedSingleton<PoolManager>
 {
-    class ObjectPool : MonoBehaviour
-    {
-        public GameObject prefab;
-
-        Queue<GameObject> _q = new Queue<GameObject>();
-
-        void Start()
-        {
-            if (prefab.GetComponent<AutoReturnToPool>() == null)
-                throw new System.Exception($"{prefab.name} prefab has no AutoReturnToPool component!");
-        }
-
-        public GameObject Get()
-        {
-            if (_q.Count == 0)
-            {
-                var clone = Instantiate(prefab, transform);
-                clone.name = prefab.name;
-                return clone;
-            }
-            return _q.Dequeue();
-        }
-        public void Put(GameObject obj)
-        {
-            if (obj == null)
-            {
-                Debug.LogError("This object is null.");
-                return;
-            }
-
-            // 이미 비활성화되어 있다면 큐에 넣지 않음
-            if (!obj.activeSelf) return;
-
-            obj.SetActive(false);
-            _q.Enqueue(obj);
-        }
-    }
-
-    ObjectPool _getPoolObj = null;
-    ObjectPool _putPoolObj = null;
-    Dictionary<string, ObjectPool> _poolDictionary = new Dictionary<string, ObjectPool>();
+    [SerializeField] PoolBehaviour[] _prefabs = null;
+    Stack<PoolBehaviour>[] _pools = null;
+    Transform _transform = null;
     bool _isCreated = false;
 
     protected override void Awake()
@@ -61,43 +23,53 @@ public class PoolManager : Singleton<PoolManager>
     {
         if (_isCreated) return;
         _isCreated = true;
-    }
-    public GameObject Get(string prefabName)
-    {
-        var prefab = ResourceManager.Instance.Get<GameObject>(prefabName);
-        if (prefab == null)
+
+        _transform = GetComponent<Transform>();
+        _pools = new Stack<PoolBehaviour>[_prefabs.Length];
+
+        for (int i = 0; i < _prefabs.Length; i++)
         {
-            Debug.LogError($"{prefabName} doesn't exist!");
-            return null;
+            // 복제된 오브젝트를 사용
+            var originGameObject = _prefabs[i].gameObject;
+
+            originGameObject.SetActive(false);
+            _prefabs[i] = Instantiate(_prefabs[i], _transform);
+            originGameObject.SetActive(true);
+
+            _pools[i] = new Stack<PoolBehaviour>();
         }
-        
-        var poolName = $"{prefabName}Pool";
-        if (_poolDictionary.TryGetValue(poolName, out _getPoolObj))
-            return _getPoolObj.Get();
+    }
+    public PoolBehaviour Get(Prefab type)
+    {
+        if (_pools[(int)type].Count == 0)
+            return Instantiate(_prefabs[(int)type], _transform);
+        return _pools[(int)type].Pop();
+    }
+    public void Put(PoolBehaviour prefab)
+    {
+        if (prefab.gameObject == null)
+            return;
 
-        var newPoolObj = new GameObject(poolName);
-        var pool = newPoolObj.AddComponent<ObjectPool>();
-
-        // 새로 생성된 풀은 풀 매니저 하위 오브젝트로 등록
-        pool.transform.parent = transform;
-        pool.prefab = prefab;
-        _poolDictionary.Add(poolName, pool);
-        return pool.Get();
+        prefab.gameObject.SetActive(false);
+        _pools[(int)prefab.Type].Push(prefab);
     }
     public void Put(GameObject obj)
     {
         if (obj == null)
-        {
-            Debug.LogError("Null GameObject is detected!");
             return;
-        }
 
-        var poolName = $"{obj.name}Pool";
-        if (_poolDictionary.TryGetValue(poolName, out _putPoolObj))
+        if (obj.TryGetComponent(out PoolBehaviour poolBehaviour))
         {
-            _putPoolObj.Put(obj);
-            return;
+            obj.SetActive(false);
+            _pools[(int)poolBehaviour.Type].Push(poolBehaviour);
         }
-        Debug.LogError("Null pool is detected!");
+        else
+            Destroy(obj);
     }
+}
+
+public enum Prefab
+{
+    Monster, Skeleton, Zombie,
+    Bullet, BulletTracer, Spark, Blood,
 }
