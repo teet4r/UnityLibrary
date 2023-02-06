@@ -9,30 +9,24 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
 
         // for으로 실행할 Custom 오브젝트 배열
         public T[] customObjs = new T[_initialSize];
-        
+
         // Custom 오브젝트에게 부여된 인덱스 저장
         Dictionary<T, int> _customObjIndexes = new Dictionary<T, int>();
 
-        // 사용 가능한 번호표 큐
-        // 사용할 번호표 발급 및 사용한 번호표 회수할 큐
-        Queue<int> _indexQ = new Queue<int>();
-
-        // 뽑은 번호표는 해당 풀에서 삭제, 반환된 번호표는 해당 풀에 저장
-        HashSet<int> _indexPool = new HashSet<int>();
+        // 사용 가능한 번호표 풀
+        // 사용할 번호표 발급 및 사용한 번호표 회수할 스택
+        Stack<int> _indexPool = new Stack<int>();
 
         // Constructor
         public CustomUpdatePool()
         {
             // initialize
             for (int i = 0; i < _initialSize; i++)
-            {
-                _indexQ.Enqueue(i);
-                _indexPool.Add(i);
-            }
+                _indexPool.Push(i);
         }
         public void Register(T obj)
         {
-            if (_indexQ.Count <= _sizeThreshold)
+            if (_indexPool.Count <= _sizeThreshold)
                 _ResizeCustomArray();
 
             // 이미 등록돼 있다면 종료
@@ -41,8 +35,7 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
             // 없다면 새로 등록
             else
             {
-                index = _indexQ.Dequeue();
-                _indexPool.Remove(index);
+                index = _indexPool.Pop();
                 _customObjIndexes.Add(obj, index);
                 customObjs[index] = obj;
             }
@@ -53,8 +46,7 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
             if (_customObjIndexes.TryGetValue(obj, out int index))
             {
                 customObjs[index] = default;
-                _indexPool.Add(index);
-                _indexQ.Enqueue(index);
+                _indexPool.Push(index);
                 _customObjIndexes.Remove(obj);
             }
         }
@@ -67,10 +59,7 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
             for (int i = 0; i < customObjs.Length; i++)
                 _newCustomObjs[i] = customObjs[i];
             for (int i = customObjs.Length; i < newSize; i++)
-            {
-                _indexQ.Enqueue(i);
-                _indexPool.Add(i);
-            }
+                _indexPool.Push(i);
 
             customObjs = _newCustomObjs;
         }
@@ -87,6 +76,7 @@ public class CustomUpdateManager : Singleton<CustomUpdateManager>
 
         Create();
     }
+
     void Update()
     {
         for (int i = 0; i < _updatePool.customObjs.Length; i++)
