@@ -33,16 +33,22 @@ public class PoolManager : PrefabricatedSingleton<PoolManager>
             var originGameObject = _prefabs[i].gameObject;
 
             originGameObject.SetActive(false);
-            _prefabs[i] = Instantiate(_prefabs[i], _transform);
+            var clone = Instantiate(_prefabs[i], _transform);
+            clone.name = $"{originGameObject.name}";
             originGameObject.SetActive(true);
 
+            _prefabs[i] = clone;
             _pools[i] = new Stack<PoolBehaviour>();
         }
     }
     public PoolBehaviour Get(Prefab type)
     {
         if (_pools[(int)type].Count == 0)
-            return Instantiate(_prefabs[(int)type], _transform);
+        {
+            var clone = Instantiate(_prefabs[(int)type], _transform);
+            clone.gameObject.SetActive(false);
+            return clone;
+        }
         return _pools[(int)type].Pop();
     }
     public void Put(PoolBehaviour prefab)
