@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using UnityEditor;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEngine;
 using CustomLibrary;
+using UnityEditor;
 
 public class TagLayerManager : Singleton<TagLayerManager>
 {
+
     Object[] _asset = null;
     SerializedObject _tagManager = null;
     SerializedProperty _tagProperty = null;
@@ -92,3 +94,4 @@ public class TagLayerManager : Singleton<TagLayerManager>
         }
     }
 }
+#endif
