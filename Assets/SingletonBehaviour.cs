@@ -9,6 +9,7 @@ public class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehaviour
     protected virtual void Awake()
     {
         _instance = this as T;
+
         DontDestroyOnLoad(gameObject);
     }
 }
