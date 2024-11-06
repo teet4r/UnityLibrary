@@ -34,9 +34,8 @@ public class UIManager : SingletonBehaviour<UIManager>
 
         if (!_uiPool.TryGetValue(type, out UI ui))
         {
-            var handle = Addressables.InstantiateAsync(type.FullName, _active);
-            handle.WaitForCompletion();
-            if (handle.Result.TryGetComponent(out UI newUI))
+            var obj = Addressables.InstantiateAsync(type.FullName, _active).WaitForCompletion();
+            if (obj.TryGetComponent(out UI newUI))
                 _uiPool.Add(type, newUI);
             return newUI as T;
         }

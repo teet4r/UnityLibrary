@@ -1,11 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class PoolObject : MonoBehaviour
+public class PoolObject : MonoBehaviour
 {
     public Transform Tr => tr;
     protected Transform tr;
+
+    public Action OnReturn;
 
     protected virtual void Awake()
     {

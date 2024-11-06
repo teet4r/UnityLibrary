@@ -8,63 +8,45 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
     private class ObjectPool
     {
         private Transform _parent;
-        private PoolObject _prefab; // 풀에 재사용할 오브젝트는 PoolObject를 상속해야 함
-        private PoolObject[] _pool = new PoolObject[1];
-        private int _top = -1;
+        private string _prefabName;
+        private List<PoolObject> _pool = new();
 
         public ObjectPool(string prefabName, Transform parent)
         {
             _parent = parent;
-
-            var prefab = Addressables.LoadAssetAsync<GameObject>(prefabName);
-            prefab.WaitForCompletion();
-            _prefab = prefab.Result.GetComponent<PoolObject>(); // 스크립트와 프리팹 이름은 동일하게
-            Addressables.Release(prefab);
+            _prefabName = prefabName;
         }
 
         public PoolObject Get()
         {
-            if (_top < 0)
-                return Instantiate(_prefab, Vector3.positiveInfinity, Quaternion.identity, _parent);
+            PoolObject pObj = null;
 
-            var obj = _pool[_top--];
-            obj.gameObject.SetActive(true);
-            return obj;
+            if (_pool.Count == 0)
+            {
+                var obj = Addressables.InstantiateAsync(_prefabName, Vector3.zero, Quaternion.identity, _parent).WaitForCompletion();
+                obj.TryGetComponent(out pObj);
+                return pObj;
+            }
+
+            int lastIdx = _pool.Count - 1;
+            pObj = _pool[lastIdx];
+            _pool.RemoveAt(lastIdx);
+
+            pObj.gameObject.SetActive(true);
+            return pObj;
         }
 
         public void Return(PoolObject obj)
         {
             obj.gameObject.SetActive(false);
 
-            ++_top;
-
-            if (_top >= _pool.Length)
-                _ResizePool();
-
-            _pool[_top] = obj;
+            _pool.Add(obj);
         }
 
         public void Clear()
         {
-            while (_top >= 0)
-            {
-                var obj = _pool[_top];
-
-                Destroy(obj.gameObject);
-                _pool[_top] = null;
-                --_top;
-            }
-        }
-
-        private void _ResizePool()
-        {
-            int poolSize = _pool.Length;
-            PoolObject[] newPool = new PoolObject[_pool.Length << 1];
-
-            for (int i = 0; i < poolSize; ++i)
-                newPool[i] = _pool[i];
-
-            _pool = newPool;
+            foreach(var obj in _pool)
+                Addressables.ReleaseInstance(obj.gameObject);
         }
     }
 
@@ -86,16 +68,9 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
     public void Return<T>(T obj) where T : PoolObject
     {
         obj.Tr.SetParent(_tr);
+        obj.OnReturn?.Invoke();
 
         _GetPool<T>().Return(obj);
-    }
-
-    public void HideAll()
-    {
-        var children = _tr.GetComponentsInChildren<PoolObject>(false);
-
-        for (int i = 0; i < children.Length; ++i)
-            Return(children[i]);
     }
 
     public void ClearAll()
@@ -110,7 +85,7 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
         var type = typeof(T);
 
         if (!_pools.TryGetValue(type, out ObjectPool pool))
-            _pools.Add(type, pool = new ObjectPool(type.Name, _tr));
+            _pools.Add(type, pool = new ObjectPool(type.FullName, _tr));
 
         return pool;
     }
