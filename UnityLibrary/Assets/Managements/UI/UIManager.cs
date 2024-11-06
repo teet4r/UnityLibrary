@@ -64,7 +64,7 @@ public class UIManager : SingletonBehaviour<UIManager>
     public void ClearAll()
     {
         foreach (var ui in _uiPool.Values)
-            Destroy(ui.gameObject);
+            Addressables.Release(ui.gameObject);
         _uiPool.Clear();
     }
 
