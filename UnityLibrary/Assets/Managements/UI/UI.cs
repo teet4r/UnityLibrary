@@ -9,6 +9,6 @@ public class UI : MonoBehaviour
 
     protected virtual void Awake()
     {
-        rectTr = GetComponent<RectTransform>();
+        TryGetComponent(out rectTr);
     }
 }
