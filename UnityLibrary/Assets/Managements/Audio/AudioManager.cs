@@ -10,7 +10,7 @@ using UnityEditor;
 
 public partial class AudioManager : SingletonBehaviour<AudioManager>
 {
-    public override bool IsLoaded => Bgm.IsLoaded && Sfx.IsLoaded;
+    public override bool IsLoaded => !this.IsNull() && Bgm.IsLoaded && Sfx.IsLoaded;
     public Bgm Bgm => _bgm;
     public Sfx Sfx => _sfx;
 

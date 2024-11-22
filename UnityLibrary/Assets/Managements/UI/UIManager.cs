@@ -21,8 +21,8 @@ public class UIManager : SingletonBehaviour<UIManager>
     {
         base.Awake();
 
-        _rectTr = GetComponent<RectTransform>();
-        _canvasScaler = GetComponent<CanvasScaler>();
+        TryGetComponent(out _rectTr);
+        TryGetComponent(out _canvasScaler);
 
         _heightRatio = Screen.height / _canvasScaler.referenceResolution.y;
         _widthRatio = Screen.width / _canvasScaler.referenceResolution.x;

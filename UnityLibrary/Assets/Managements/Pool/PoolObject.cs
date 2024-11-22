@@ -12,6 +12,6 @@ public class PoolObject : MonoBehaviour
 
     protected virtual void Awake()
     {
-        tr = GetComponent<Transform>();
+        TryGetComponent(out tr);
     }
 }

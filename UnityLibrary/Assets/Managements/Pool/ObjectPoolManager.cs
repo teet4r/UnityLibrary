@@ -57,7 +57,7 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
     {
         base.Awake();
 
-        _tr = GetComponent<Transform>();
+        TryGetComponent(out _tr);
     }
 
     public T Get<T>() where T : PoolObject

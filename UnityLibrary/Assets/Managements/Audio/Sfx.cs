@@ -5,7 +5,7 @@ using UnityEngine.AddressableAssets;
 
 public class Sfx : MonoBehaviour
 {
-    public bool IsLoaded => _audioSource != null;
+    public bool IsLoaded => !_audioSource.IsNull();
 
     private AudioSource _audioSource;
     private Dictionary<SfxName, AudioClip> _sfxs = new();
@@ -23,7 +23,7 @@ public class Sfx : MonoBehaviour
 
     private void Awake()
     {
-        _audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out _audioSource);
     }
 
     public void Initialize()

@@ -5,7 +5,7 @@ using UnityEngine.AddressableAssets;
 
 public class Bgm : MonoBehaviour
 {
-    public bool IsLoaded => _audioSource != null;
+    public bool IsLoaded => !_audioSource.IsNull();
     public bool IsPlaying => _audioSource.isPlaying;
 
     private AudioSource _audioSource;
@@ -24,7 +24,7 @@ public class Bgm : MonoBehaviour
 
     private void Awake()
     {
-        _audioSource = GetComponent<AudioSource>();
+        TryGetComponent(out _audioSource);
     }
 
     public void Initialize()
