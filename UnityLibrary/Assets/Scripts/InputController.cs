@@ -15,6 +15,8 @@ public class InputController : MonoBehaviour
     [SerializeField] private Button _start;
     [SerializeField] private Button _stop;
     [SerializeField] private Button _init;
+    [SerializeField] private Button _return;
+    [SerializeField] private Button _pause;
 
     private CancellationTokenSource _cancellationTokenSource;
 
@@ -31,6 +33,8 @@ public class InputController : MonoBehaviour
             _cancellationTokenSource = null;
         });
         _init.onClick.AddListener(() => ObjectPoolManager.Instance.ClearAll());
+        _return.onClick.AddListener(() => ObjectPoolManager.Instance.HideAll());
+        _pause.onClick.AddListener(() => Time.timeScale = Time.timeScale == 0f ? 1f : 0f);
     }
 
     private void Start()
@@ -53,8 +57,8 @@ public class InputController : MonoBehaviour
             capsule.Tr.position = pos;
             triangle.Tr.position = pos;
 
-            capsule.Return().Forget();
-            triangle.Return().Forget();
+            capsule.ReturnAsync().Forget();
+            triangle.ReturnAsync().Forget();
 
             await UniTask.Delay(_delay, cancellationToken: _cancellationTokenSource.Token);
         }

@@ -42,12 +42,6 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
 
             _pool.Add(obj);
         }
-
-        public void Clear()
-        {
-            foreach(var obj in _pool)
-                Addressables.ReleaseInstance(obj.gameObject);
-        }
     }
 
     private Transform _tr;
@@ -57,7 +51,7 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
     {
         base.Awake();
 
-        TryGetComponent(out _tr);
+        _tr = transform;
     }
 
     public T Get<T>() where T : PoolObject
@@ -68,22 +62,35 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
     public void Return<T>(T obj) where T : PoolObject
     {
         obj.Tr.SetParent(_tr);
-        obj.OnReturn?.Invoke();
 
-        _GetPool<T>().Return(obj);
+        _GetPool(obj.GetType()).Return(obj);
+    }
+
+    public void HideAll()
+    {
+        var allPoolObjects = FindObjectsByType<PoolObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < allPoolObjects.Length; ++i)
+            allPoolObjects[i].Return();
     }
 
     public void ClearAll()
     {
-        foreach (var pool in _pools.Values)
-            pool.Clear();
+        var allPoolObjects = FindObjectsByType<PoolObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < allPoolObjects.Length; ++i)
+        {
+            allPoolObjects[i].Return();
+            Addressables.ReleaseInstance(allPoolObjects[i].gameObject);
+        }
         _pools.Clear();
     }
 
     private ObjectPool _GetPool<T>()
     {
-        var type = typeof(T);
+        return _GetPool(typeof(T));
+    }
 
+    private ObjectPool _GetPool(Type type)
+    {
         if (!_pools.TryGetValue(type, out ObjectPool pool))
             _pools.Add(type, pool = new ObjectPool(type.FullName, _tr));
 

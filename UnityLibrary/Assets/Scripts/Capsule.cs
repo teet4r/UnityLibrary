@@ -1,13 +1,13 @@
 using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Threading;
 
 public class Capsule : PoolObject
 {
-    public async UniTask Return()
+    public async UniTask ReturnAsync()
     {
-        await UniTask.Delay(3000);
-        ObjectPoolManager.Instance.Return(this);
+        await UniTask.Delay(3000, cancellationToken: CancellationTokenSource.Token);
+        Return();
     }
 }

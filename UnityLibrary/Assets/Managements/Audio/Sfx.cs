@@ -23,13 +23,9 @@ public class Sfx : MonoBehaviour
 
     private void Awake()
     {
-        TryGetComponent(out _audioSource);
-    }
+        if (TryGetComponent(out _audioSource))
+            _audioSource.volume = PlayerPrefs.GetFloat("SfxVolume", 1f);
 
-    public void Initialize()
-    {
-        _sfxs.Clear();
-        _audioSource.volume = PlayerPrefs.GetFloat("SfxVolume", 1f);
     }
 
     public void Play(SfxName sfx)
@@ -38,7 +34,6 @@ public class Sfx : MonoBehaviour
         {
             var obj = Addressables.LoadAssetAsync<AudioClip>(sfx.ToString()).WaitForCompletion();
             _sfxs.Add(sfx, clip = obj);
-            Addressables.Release(obj);
         }
         _audioSource.PlayOneShot(clip);
     }

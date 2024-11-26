@@ -24,13 +24,8 @@ public class Bgm : MonoBehaviour
 
     private void Awake()
     {
-        TryGetComponent(out _audioSource);
-    }
-
-    public void Initialize()
-    {
-        _bgms.Clear();
-        _audioSource.volume = PlayerPrefs.GetFloat("BgmVolume", 1f);
+        if (TryGetComponent(out _audioSource))
+            _audioSource.volume = PlayerPrefs.GetFloat("BgmVolume", 1f);
     }
 
     public void Play(BgmName bgm)
@@ -39,7 +34,6 @@ public class Bgm : MonoBehaviour
         {
             var obj = Addressables.LoadAssetAsync<AudioClip>(bgm.ToString()).WaitForCompletion();
             _bgms.Add(bgm, clip = obj);
-            Addressables.Release(obj);
         }
 
         if (clip == _audioSource.clip)
