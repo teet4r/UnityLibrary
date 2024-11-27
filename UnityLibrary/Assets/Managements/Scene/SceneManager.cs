@@ -3,8 +3,7 @@ using UnitySceneManager = UnityEngine.SceneManagement.SceneManager;
 using UnityEngine;
 using System.IO;
 using System.Text;
-using UnityEngine.Events;
-
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,10 +12,14 @@ using UnityEditor.SceneManagement;
 
 public partial class SceneManager : SingletonBehaviour<SceneManager>
 {
-    public async UniTask LoadSceneAsync(SceneName sceneName, UniTask betweenCall = default)
+    public async UniTask LoadSceneAsync(SceneName sceneName, Func<UniTask> enterCall = default, Func<UniTask> exitCall = default)
     {
+        if (enterCall != default)
+            await enterCall.Invoke();
         await UnitySceneManager.LoadSceneAsync((int)SceneName.Empty);
-        await betweenCall;
+        
+        if (exitCall != default)
+            await exitCall.Invoke();
         await UnitySceneManager.LoadSceneAsync((int)sceneName);
     }
 }

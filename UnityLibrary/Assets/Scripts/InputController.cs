@@ -17,6 +17,7 @@ public class InputController : MonoBehaviour
     [SerializeField] private Button _init;
     [SerializeField] private Button _return;
     [SerializeField] private Button _pause;
+    [SerializeField] private Button _goNextScene;
 
     private CancellationTokenSource _cancellationTokenSource;
 
@@ -35,6 +36,16 @@ public class InputController : MonoBehaviour
         _init.onClick.AddListener(() => ObjectPoolManager.Instance.ClearAll());
         _return.onClick.AddListener(() => ObjectPoolManager.Instance.HideAll());
         _pause.onClick.AddListener(() => Time.timeScale = Time.timeScale == 0f ? 1f : 0f);
+        _goNextScene.onClick.AddListener(() =>
+        {
+            SceneManager.Instance.LoadSceneAsync(
+                SceneName.NextScene,
+                async () =>
+                {
+                    await UniTask.Delay(3000);
+                    ObjectPoolManager.Instance.ClearAll();
+                }).Forget();
+        });
     }
 
     private void Start()
