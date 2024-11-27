@@ -1,13 +1,18 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using UniRx;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 public class InputController : MonoBehaviour
 {
+    public static InputController Instance => _instance;
+    private static InputController _instance;
+
     [SerializeField] private PoolObject _tri;
     [SerializeField] private PoolObject _cap;
     [Min(0f)][SerializeField] private int _delay;
@@ -18,11 +23,15 @@ public class InputController : MonoBehaviour
     [SerializeField] private Button _return;
     [SerializeField] private Button _pause;
     [SerializeField] private Button _goNextScene;
+    [SerializeField] private Text _time;
 
     private CancellationTokenSource _cancellationTokenSource;
+    private ReactiveProperty<bool> _onNextScene = new(false);
 
     private void Awake()
     {
+        _instance = this;
+
         _start.onClick.AddListener(() => _Run1().Forget());
         _stop.onClick.AddListener(() =>
         {
@@ -38,19 +47,44 @@ public class InputController : MonoBehaviour
         _pause.onClick.AddListener(() => Time.timeScale = Time.timeScale == 0f ? 1f : 0f);
         _goNextScene.onClick.AddListener(() =>
         {
+            AddSubcriptionOnNextScene(invoke =>
+            {
+                if (invoke)
+                {
+                    _stop.onClick.Invoke();
+                    ObjectPoolManager.Instance.ClearAll();
+                }
+            });
+
             SceneManager.Instance.LoadSceneAsync(
                 SceneName.NextScene,
                 async () =>
                 {
+                    _onNextScene.Value = true;
                     await UniTask.Delay(3000);
-                    ObjectPoolManager.Instance.ClearAll();
-                }).Forget();
+                }
+            ).Forget();
         });
     }
 
     private void Start()
     {
         AudioManager.Instance.Bgm.Play(BgmName.Track5);
+
+        float t = 0;
+        Observable.EveryUpdate()
+            .Subscribe(_ =>
+            {
+                t += Time.deltaTime;
+                _time.text = $"Time: {t:N2}";
+            })
+            .AddTo(gameObject);
+    }
+
+    public void AddSubcriptionOnNextScene(Action<bool> onNextScene)
+    {
+        _onNextScene.Subscribe(onNextScene)
+            .AddTo(gameObject);
     }
 
     private async UniTask _Run1()
@@ -63,7 +97,7 @@ public class InputController : MonoBehaviour
             var capsule = ObjectPoolManager.Instance.Get<Capsule>();
             var triangle = ObjectPoolManager.Instance.Get<Triangle>();
 
-            Vector2 pos = new Vector2(Random.Range(-1f, 1f), 1f);
+            Vector2 pos = new Vector2(UnityEngine.Random.Range(-1f, 1f), 1f);
 
             capsule.Tr.position = pos;
             triangle.Tr.position = pos;
