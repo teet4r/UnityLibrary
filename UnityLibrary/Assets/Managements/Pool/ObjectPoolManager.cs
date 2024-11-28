@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -42,16 +43,26 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
 
             _pool.Add(obj);
         }
+
+        public void Clear()
+        {
+            foreach (var obj in _pool)
+                Addressables.ReleaseInstance(obj.gameObject);
+            _pool.Clear();
+        }
     }
 
     private Transform _tr;
     private Dictionary<Type, ObjectPool> _pools = new();
+    public IObservable<bool> OnHideOrClear => _onHideOrClearSubject;
+    private Subject<bool> _onHideOrClearSubject = new();
 
     protected override void Awake()
     {
         base.Awake();
 
         _tr = transform;
+        
     }
 
     public T Get<T>() where T : PoolObject
@@ -68,19 +79,14 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
 
     public void HideAll()
     {
-        var allPoolObjects = FindObjectsByType<PoolObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < allPoolObjects.Length; ++i)
-            allPoolObjects[i].Return();
+        _onHideOrClearSubject.OnNext(true);
     }
 
     public void ClearAll()
     {
-        var allPoolObjects = FindObjectsByType<PoolObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = 0; i < allPoolObjects.Length; ++i)
-        {
-            allPoolObjects[i].Return();
-            Addressables.ReleaseInstance(allPoolObjects[i].gameObject);
-        }
+        HideAll();
+        foreach (var pool in _pools.Values)
+            pool.Clear();
         _pools.Clear();
     }
 

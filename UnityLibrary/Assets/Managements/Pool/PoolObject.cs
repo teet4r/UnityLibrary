@@ -1,5 +1,5 @@
-using System;
 using System.Threading;
+using UniRx;
 using UnityEngine;
 
 public class PoolObject : MonoBehaviour
@@ -22,9 +22,12 @@ public class PoolObject : MonoBehaviour
     protected virtual void Awake()
     {
         tr = transform;
+
+        ObjectPoolManager.Instance.OnHideOrClear.Subscribe(_ => Return())
+            .AddTo(gameObject);
     }
 
-    public virtual void Return()
+    protected virtual void Return()
     {
         if (IsTokenCancellable)
         {
