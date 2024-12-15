@@ -99,8 +99,8 @@ public class InputController : MonoBehaviour
 
             Vector2 pos = new Vector2(UnityEngine.Random.Range(-1f, 1f), 1f);
 
-            capsule.Tr.position = pos;
-            triangle.Tr.position = pos;
+            capsule.transform.position = pos;
+            triangle.transform.position = pos;
 
             capsule.ReturnAsync().Forget();
             triangle.ReturnAsync().Forget();
@@ -128,8 +128,8 @@ public class InputController : MonoBehaviour
             var handle = Addressables.InstantiateAsync("Capsule", Vector2.zero, Quaternion.identity).WaitForCompletion().GetComponent<PoolObject>();
             var handle2 = Addressables.InstantiateAsync("Triangle", Vector2.zero, Quaternion.identity).WaitForCompletion().GetComponent<PoolObject>();
 
-            handle.Tr.position = Vector2.zero;
-            handle2.Tr.position = Vector2.zero;
+            handle.transform.position = Vector2.zero;
+            handle2.transform.position = Vector2.zero;
 
             await UniTask.Delay(_delay);
         }
