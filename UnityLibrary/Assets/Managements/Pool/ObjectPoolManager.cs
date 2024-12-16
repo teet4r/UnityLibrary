@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UniRx;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -50,17 +49,16 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
         }
     }
 
-    private Transform _tr;
+    public new Transform transform => _transform;
+    private Transform _transform;
     private Dictionary<Type, ObjectPool> _pools = new();
-    public IObservable<bool> OnHideOrClear => _onHideOrClearSubject;
-    private Subject<bool> _onHideOrClearSubject = new();
+    public event Action onHideOrClear;
 
     protected override void Awake()
     {
         base.Awake();
 
-        _tr = transform;
-        
+        _transform = gameObject.transform;
     }
 
     public T Get<T>() where T : PoolObject
@@ -70,14 +68,14 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
 
     public void Return<T>(T obj) where T : PoolObject
     {
-        obj.transform.SetParent(_tr);
+        obj.transform.SetParent(transform);
 
         _GetPool(obj.GetType()).Return(obj);
     }
 
     public void HideAll()
     {
-        _onHideOrClearSubject.OnNext(true);
+        onHideOrClear?.Invoke();
     }
 
     public void ClearAll()
@@ -96,7 +94,7 @@ public class ObjectPoolManager : SingletonBehaviour<ObjectPoolManager>
     private ObjectPool _GetPool(Type type)
     {
         if (!_pools.TryGetValue(type, out ObjectPool pool))
-            _pools.Add(type, pool = new ObjectPool(type.FullName, _tr));
+            _pools.Add(type, pool = new ObjectPool(type.FullName, transform));
 
         return pool;
     }
