@@ -94,8 +94,8 @@ public class InputController : MonoBehaviour
 
         while (!_cancellationTokenSource.IsCancellationRequested)
         {
-            var capsule = ObjectPoolManager.Instance.Get("Capsule") as Capsule;
-            var triangle = ObjectPoolManager.Instance.Get("Triangle") as Triangle;
+            var capsule = ObjectPoolManager.Instance.Get<Capsule>();
+            var triangle = ObjectPoolManager.Instance.Get<Triangle>();
 
             Vector2 pos = new Vector2(UnityEngine.Random.Range(-1f, 1f), 1f);
 
